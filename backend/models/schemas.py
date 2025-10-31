@@ -3,11 +3,19 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
+class UserProfile(BaseModel):
+    """User profile with context for personalized responses"""
+    grade_levels: str
+    scenario: str
+    session_id: str
+
+
 class ChatMessage(BaseModel):
     """Schema for chat messages"""
     message: str
     use_rag: bool = True
     provider: Optional[str] = None
+    session_id: Optional[str] = None
 
 
 class ChatResponse(BaseModel):

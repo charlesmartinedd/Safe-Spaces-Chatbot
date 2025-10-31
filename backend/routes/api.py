@@ -1,8 +1,9 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from backend.models.schemas import ChatMessage, ChatResponse, DocumentUpload, HealthResponse
+from backend.models.schemas import ChatMessage, ChatResponse, DocumentUpload, HealthResponse, UserProfile
 from backend.services.rag_service import RAGService
 from backend.services.chat_service import ChatService
 import logging
+from typing import Dict
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -12,6 +13,9 @@ router = APIRouter()
 # Initialize services
 rag_service = RAGService()
 chat_service = ChatService()
+
+# Session storage (in-memory for now)
+user_sessions: Dict[str, Dict] = {}
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -26,28 +30,40 @@ async def health_check():
     )
 
 
+@router.post("/setup-profile")
+async def setup_profile(profile: UserProfile):
+    """Store user profile for personalized responses"""
+    user_sessions[profile.session_id] = {
+        "grade_levels": profile.grade_levels,
+        "scenario": profile.scenario
+    }
+    logger.info("Profile set up for session %s", profile.session_id)
+    return {"status": "success", "session_id": profile.session_id}
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(message: ChatMessage):
-    """Chat endpoint with optional RAG"""
+    """Chat endpoint with mandatory RAG and context awareness"""
     try:
-        sources = None
+        # Always retrieve RAG context (forced)
+        sources = rag_service.query(message.message, n_results=5)
+        logger.info("Retrieved %d sources for query", len(sources))
 
-        # If RAG is enabled, retrieve relevant context
-        if message.use_rag:
-            sources = rag_service.query(message.message, n_results=3)
-            logger.info("Retrieved %d sources for query", len(sources))
+        # Get user profile from session
+        user_profile = user_sessions.get(message.session_id, {})
 
-        # Generate response
+        # Generate response (always using xai/Grok-4)
         response_text, provider_used = chat_service.generate_response(
             user_message=message.message,
             context=sources,
-            provider=message.provider,
+            provider="xai",  # Force Grok-4
+            user_profile=user_profile,
         )
 
         return ChatResponse(
             response=response_text,
             provider=provider_used,
-            sources=sources if message.use_rag else None
+            sources=sources  # Always return sources
         )
 
     except Exception as e:  # noqa: BLE001
