@@ -3,53 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot with RAG</title>
+    <title>RRC - Scenarios / Resources</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
+    <div class="app-shell">
         <header class="header">
-            <h1>AI Chatbot with RAG</h1>
-            <p class="subtitle">Intelligent conversations powered by Retrieval-Augmented Generation</p>
+            <div class="branding">
+                <h1>RRC – Scenarios / Resources</h1>
+                <p>Safe Spaces support hub helping California K-12 staff respond with confidence.</p>
+            </div>
+            <div class="status-panel">
+                <div class="status-item">
+                    <span class="label">Knowledge chunks</span>
+                    <span class="value" id="doc-count">0</span>
+                </div>
+                <div class="status-item">
+                    <label for="provider-select" class="label">AI provider</label>
+                    <select id="provider-select" class="provider-select" disabled>
+                        <option value="">Not configured</option>
+                    </select>
+                </div>
+                <div class="status-item">
+                    <span class="label">Service</span>
+                    <span class="status-tag" id="status">Checking…</span>
+                </div>
+            </div>
         </header>
 
-        <!-- Main Content -->
         <div class="main-content">
-            <!-- Sidebar for document management -->
             <aside class="sidebar">
-                <div class="sidebar-section">
+                <section class="panel">
                     <h2>Knowledge Base</h2>
-                    <div class="document-stats">
-                        <span id="doc-count">0</span> chunks loaded
-                    </div>
-
-                    <div class="upload-section">
-                        <h3>Upload Documents</h3>
-                        <input type="file" id="file-input" accept=".txt,.pdf" />
+                    <p>Upload policy documents, safety plans, or training guides to enrich the Safe Spaces knowledge base.</p>
+                    <div class="upload-control">
+                        <input type="file" id="file-input" accept=".txt,.pdf">
                         <button id="upload-btn" class="btn btn-primary">Upload</button>
-                        <div id="upload-status" class="status-message"></div>
                     </div>
+                    <div id="upload-status" class="status-message"></div>
+                    <button id="clear-docs-btn" class="btn btn-outline">Clear All Documents</button>
+                </section>
 
-                    <div class="rag-toggle">
-                        <label class="toggle-label">
-                            <input type="checkbox" id="rag-toggle" checked />
-                            <span class="toggle-slider"></span>
-                            <span class="toggle-text">Use RAG</span>
-                        </label>
+                <section class="panel">
+                    <h2>Response Settings</h2>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="rag-toggle" checked>
+                        <span class="toggle-slider"></span>
+                        <div class="toggle-text">
+                            <span class="toggle-title">Use RAG</span>
+                            <span class="toggle-subtitle">Blend AI with Safe Spaces resources</span>
+                        </div>
+                    </label>
+                </section>
+
+                <section class="panel">
+                    <h2>Scenario Starters</h2>
+                    <p>Select a scenario to pre-fill the chat prompt.</p>
+                    <div class="scenario-grid">
+                        <button class="scenario-btn" data-scenario="A student tells a cafeteria worker they are being bullied because of their identity. How should staff respond and document the incident?">Lunchroom Bullying</button>
+                        <button class="scenario-btn" data-scenario="A teacher is unsure how to support a foster youth who frequently changes schools. Provide guidance and key resources." >Supporting Foster Youth</button>
+                        <button class="scenario-btn" data-scenario="An after-school program aide notices signs of trauma in a student whose family recently faced housing instability. Outline trauma-informed next steps." >Trauma-Informed Support</button>
+                        <button class="scenario-btn" data-scenario="Campus security needs a checklist for responding to a possible hate-motivated incident on campus. Provide recommended actions and reporting requirements." >Incident Response Checklist</button>
+                        <button class="scenario-btn" data-scenario="A paraprofessional wants to create a welcoming environment for LGBTQ+ students during recess. Suggest practical strategies." >Inclusive Recess Strategies</button>
+                        <button class="scenario-btn" data-scenario="A principal plans staff training on mandated reporter obligations. Summarize required talking points and reference materials." >Mandated Reporter Training</button>
                     </div>
-
-                    <button id="clear-docs-btn" class="btn btn-secondary">Clear All Documents</button>
-                </div>
+                </section>
             </aside>
 
-            <!-- Chat Area -->
-            <main class="chat-container">
+            <main class="chat-area">
                 <div class="chat-messages" id="chat-messages">
                     <div class="message bot-message">
                         <div class="message-content">
-                            <strong>AI Assistant:</strong>
-                            <p>Hello! I'm your AI assistant with RAG capabilities. Upload documents to my knowledge base, and I'll use them to provide more accurate and contextual responses. How can I help you today?</p>
+                            <div class="message-header">
+                                <strong>Safe Spaces Assistant</strong>
+                                <span class="provider-pill">Knowledge Base</span>
+                            </div>
+                            <p>Welcome to the RRC – Scenarios / Resources workspace. Upload Safe Spaces guidance, pick a scenario starter, or describe a situation. I will pull from official California resources and educator-friendly practices to help you respond.</p>
                         </div>
                     </div>
                 </div>
@@ -58,17 +87,15 @@
                     <textarea
                         id="user-input"
                         class="chat-input"
-                        placeholder="Type your message here..."
-                        rows="3"
-                    ></textarea>
-                    <button id="send-btn" class="btn btn-send">Send</button>
+                        placeholder="Describe the scenario you need help with…"
+                        rows="3"></textarea>
+                    <button id="send-btn" class="btn btn-primary">Send</button>
                 </div>
             </main>
         </div>
 
-        <!-- Footer -->
         <footer class="footer">
-            <p>Powered by OpenAI and ChromaDB | Status: <span id="status">Checking...</span></p>
+            <p>Powered by Retrieval-Augmented Generation with optional OpenAI and xAI Grok providers. Designed for California Safe Spaces teams.</p>
         </footer>
     </div>
 

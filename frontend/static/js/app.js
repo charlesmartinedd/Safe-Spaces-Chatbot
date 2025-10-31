@@ -1,192 +1,251 @@
-// API endpoint base URL
-const API_BASE = '/api';
+const API_BASE = "/api";
 
-// DOM elements
-const chatMessages = document.getElementById('chat-messages');
-const userInput = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
-const fileInput = document.getElementById('file-input');
-const uploadBtn = document.getElementById('upload-btn');
-const uploadStatus = document.getElementById('upload-status');
-const clearDocsBtn = document.getElementById('clear-docs-btn');
-const ragToggle = document.getElementById('rag-toggle');
-const docCount = document.getElementById('doc-count');
-const statusElement = document.getElementById('status');
+const elements = {
+    chatMessages: document.getElementById("chat-messages"),
+    userInput: document.getElementById("user-input"),
+    sendBtn: document.getElementById("send-btn"),
+    fileInput: document.getElementById("file-input"),
+    uploadBtn: document.getElementById("upload-btn"),
+    uploadStatus: document.getElementById("upload-status"),
+    clearDocsBtn: document.getElementById("clear-docs-btn"),
+    ragToggle: document.getElementById("rag-toggle"),
+    docCount: document.getElementById("doc-count"),
+    statusTag: document.getElementById("status"),
+    providerSelect: document.getElementById("provider-select"),
+};
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
+let availableProviders = [];
+let defaultProvider = null;
+
+document.addEventListener("DOMContentLoaded", () => {
     checkHealth();
     updateDocumentCount();
 
-    // Event listeners
-    sendBtn.addEventListener('click', sendMessage);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+    elements.sendBtn.addEventListener("click", sendMessage);
+    elements.userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
     });
 
-    uploadBtn.addEventListener('click', uploadDocument);
-    clearDocsBtn.addEventListener('click', clearDocuments);
+    elements.uploadBtn.addEventListener("click", uploadDocument);
+    elements.clearDocsBtn.addEventListener("click", clearDocuments);
+
+    document.querySelectorAll(".scenario-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            elements.userInput.value = btn.dataset.scenario;
+            elements.userInput.focus();
+        });
+    });
 });
 
-// Check API health
+function formatProviderName(key) {
+    if (!key || key === "unknown") return "Model";
+    if (key === "openai") return "OpenAI";
+    if (key === "xai") return "xAI Grok";
+    return key.toUpperCase();
+}
+
 async function checkHealth() {
     try {
         const response = await fetch(`${API_BASE}/health`);
         const data = await response.json();
 
-        if (data.status === 'healthy') {
-            statusElement.textContent = 'Online';
-            statusElement.className = 'healthy';
-            docCount.textContent = data.documents_count;
+        if (data.status === "healthy") {
+            setStatus("Online", "healthy");
         } else {
-            statusElement.textContent = 'Error';
-            statusElement.className = 'error';
+            setStatus("Error", "error");
         }
+
+        elements.docCount.textContent = data.documents_count ?? 0;
+        defaultProvider = data.default_provider || null;
+        availableProviders = Array.isArray(data.providers) ? data.providers : [];
+        populateProviderOptions();
     } catch (error) {
-        console.error('Health check failed:', error);
-        statusElement.textContent = 'Offline';
-        statusElement.className = 'error';
+        console.error("Health check failed:", error);
+        setStatus("Offline", "error");
     }
 }
 
-// Update document count
+function setStatus(text, state) {
+    elements.statusTag.textContent = text;
+    elements.statusTag.className = `status-tag ${state}`;
+}
+
+function populateProviderOptions() {
+    const select = elements.providerSelect;
+    select.innerHTML = "";
+
+    if (!availableProviders.length) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Not configured";
+        select.appendChild(option);
+        select.disabled = true;
+        return;
+    }
+
+    availableProviders.forEach((provider) => {
+        const option = document.createElement("option");
+        option.value = provider;
+        option.textContent = formatProviderName(provider);
+        select.appendChild(option);
+    });
+
+    const fallback = defaultProvider && availableProviders.includes(defaultProvider)
+        ? defaultProvider
+        : availableProviders[0];
+
+    select.value = fallback;
+    select.disabled = false;
+}
+
 async function updateDocumentCount() {
     try {
         const response = await fetch(`${API_BASE}/documents/count`);
         const data = await response.json();
-        docCount.textContent = data.count;
+        elements.docCount.textContent = data.count ?? 0;
     } catch (error) {
-        console.error('Failed to get document count:', error);
+        console.error("Failed to get document count:", error);
     }
 }
 
-// Send chat message
 async function sendMessage() {
-    const message = userInput.value.trim();
-
+    const message = elements.userInput.value.trim();
     if (!message) return;
 
-    // Add user message to chat
-    addMessage(message, 'user');
+    addMessage({ sender: "user", text: message, provider: formatProviderName(elements.providerSelect.value) });
+    elements.userInput.value = "";
+    elements.sendBtn.disabled = true;
 
-    // Clear input
-    userInput.value = '';
-
-    // Disable send button
-    sendBtn.disabled = true;
-
-    // Show loading indicator
-    const loadingId = addLoadingMessage();
+    const loadingId = addLoadingMessage(formatProviderName(elements.providerSelect.value));
 
     try {
+        const payload = {
+            message,
+            use_rag: elements.ragToggle.checked,
+            provider: elements.providerSelect.disabled ? null : elements.providerSelect.value || null,
+        };
+
         const response = await fetch(`${API_BASE}/chat`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: message,
-                use_rag: ragToggle.checked
-            })
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
         });
 
         const data = await response.json();
-
-        // Remove loading indicator
         removeLoadingMessage(loadingId);
 
-        // Add bot response
-        addMessage(data.response, 'bot', data.sources);
+        if (!response.ok) {
+            throw new Error(data.detail || "Request failed");
+        }
 
+        addMessage({
+            sender: "bot",
+            text: data.response,
+            sources: data.sources,
+            provider: formatProviderName(data.provider),
+        });
     } catch (error) {
-        console.error('Error sending message:', error);
+        console.error("Error sending message:", error);
         removeLoadingMessage(loadingId);
-        addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+        addMessage({ sender: "bot", text: "Sorry, I encountered an error. Please try again.", provider: "System" });
     } finally {
-        sendBtn.disabled = false;
-        userInput.focus();
+        elements.sendBtn.disabled = false;
+        elements.userInput.focus();
     }
 }
 
-// Add message to chat
-function addMessage(text, sender, sources = null) {
-    const messageDiv = document.createElement('div');
+function addMessage({ sender, text, sources = null, provider = null }) {
+    const messageDiv = document.createElement("div");
     messageDiv.className = `message ${sender}-message`;
 
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "message-content";
 
-    const senderLabel = document.createElement('strong');
-    senderLabel.textContent = sender === 'user' ? 'You:' : 'AI Assistant:';
+    const headerDiv = document.createElement("div");
+    headerDiv.className = "message-header";
 
-    const messageText = document.createElement('p');
+    const senderLabel = document.createElement("strong");
+    senderLabel.textContent = sender === "user" ? "You" : "Safe Spaces Assistant";
+    headerDiv.appendChild(senderLabel);
+
+    if (provider) {
+        const providerPill = document.createElement("span");
+        providerPill.className = "provider-pill";
+        providerPill.textContent = provider;
+        headerDiv.appendChild(providerPill);
+    }
+
+    const messageText = document.createElement("p");
     messageText.textContent = text;
 
-    contentDiv.appendChild(senderLabel);
+    contentDiv.appendChild(headerDiv);
     contentDiv.appendChild(messageText);
 
-    // Add sources if available
-    if (sources && sources.length > 0) {
-        const sourcesDiv = document.createElement('div');
-        sourcesDiv.className = 'sources';
+    if (sources && Array.isArray(sources) && sources.length > 0) {
+        const sourcesDiv = document.createElement("div");
+        sourcesDiv.className = "sources";
+        const title = document.createElement("strong");
+        title.textContent = "Knowledge base excerpts";
+        sourcesDiv.appendChild(title);
 
-        const sourcesTitle = document.createElement('div');
-        sourcesTitle.className = 'sources-title';
-        sourcesTitle.textContent = 'Sources:';
-        sourcesDiv.appendChild(sourcesTitle);
-
-        sources.forEach((source, index) => {
-            const sourceItem = document.createElement('div');
-            sourceItem.className = 'source-item';
-            sourceItem.textContent = `${index + 1}. ${source.source} (chunk ${source.chunk})`;
-            sourcesDiv.appendChild(sourceItem);
+        const list = document.createElement("ul");
+        sources.slice(0, 5).forEach((item) => {
+            const li = document.createElement("li");
+            li.textContent = `${item.source || "Document"} (chunk ${item.chunk ?? 0})`;
+            list.appendChild(li);
         });
-
+        sourcesDiv.appendChild(list);
         contentDiv.appendChild(sourcesDiv);
     }
 
     messageDiv.appendChild(contentDiv);
-    chatMessages.appendChild(messageDiv);
-
-    // Scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    elements.chatMessages.appendChild(messageDiv);
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 }
 
-// Add loading message
-function addLoadingMessage() {
+function addLoadingMessage(providerLabel) {
     const loadingId = `loading-${Date.now()}`;
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message bot-message';
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "message bot-message";
     messageDiv.id = loadingId;
 
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "message-content";
 
-    const senderLabel = document.createElement('strong');
-    senderLabel.textContent = 'AI Assistant:';
+    const headerDiv = document.createElement("div");
+    headerDiv.className = "message-header";
 
-    const loadingDiv = document.createElement('div');
-    loadingDiv.style.cssText = 'display: flex; gap: 5px; margin-top: 5px;';
+    const senderLabel = document.createElement("strong");
+    senderLabel.textContent = "Safe Spaces Assistant";
+    headerDiv.appendChild(senderLabel);
+
+    if (providerLabel) {
+        const providerPill = document.createElement("span");
+        providerPill.className = "provider-pill";
+        providerPill.textContent = providerLabel;
+        headerDiv.appendChild(providerPill);
+    }
+
+    const loadingDiv = document.createElement("div");
+    loadingDiv.style.cssText = "display: flex; gap: 5px; margin-top: 5px;";
     loadingDiv.innerHTML = `
         <span class="loading"></span>
         <span class="loading"></span>
         <span class="loading"></span>
     `;
 
-    contentDiv.appendChild(senderLabel);
+    contentDiv.appendChild(headerDiv);
     contentDiv.appendChild(loadingDiv);
     messageDiv.appendChild(contentDiv);
-    chatMessages.appendChild(messageDiv);
-
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    elements.chatMessages.appendChild(messageDiv);
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 
     return loadingId;
 }
 
-// Remove loading message
 function removeLoadingMessage(loadingId) {
     const loadingElement = document.getElementById(loadingId);
     if (loadingElement) {
@@ -194,85 +253,77 @@ function removeLoadingMessage(loadingId) {
     }
 }
 
-// Upload document
 async function uploadDocument() {
-    const file = fileInput.files[0];
-
+    const file = elements.fileInput.files[0];
     if (!file) {
-        showUploadStatus('Please select a file', 'error');
+        showUploadStatus("Please select a file", "error");
         return;
     }
 
-    uploadBtn.disabled = true;
-    showUploadStatus('Uploading...', 'success');
+    elements.uploadBtn.disabled = true;
+    showUploadStatus("Uploading…", "success");
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
         const response = await fetch(`${API_BASE}/upload`, {
-            method: 'POST',
-            body: formData
+            method: "POST",
+            body: formData,
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            showUploadStatus(`Successfully uploaded ${data.filename} (${data.chunks_created} chunks)`, 'success');
-            fileInput.value = '';
+            showUploadStatus(`Successfully uploaded ${data.filename} (${data.chunks_created} chunks)`, "success");
+            elements.fileInput.value = "";
             updateDocumentCount();
             checkHealth();
         } else {
-            showUploadStatus(`Error: ${data.detail}`, 'error');
+            showUploadStatus(`Error: ${data.detail}`, "error");
         }
-
     } catch (error) {
-        console.error('Upload error:', error);
-        showUploadStatus('Upload failed. Please try again.', 'error');
+        console.error("Upload error:", error);
+        showUploadStatus("Upload failed. Please try again.", "error");
     } finally {
-        uploadBtn.disabled = false;
+        elements.uploadBtn.disabled = false;
     }
 }
 
-// Show upload status
 function showUploadStatus(message, type) {
-    uploadStatus.textContent = message;
-    uploadStatus.className = `status-message ${type}`;
+    elements.uploadStatus.style.display = "block";
+    elements.uploadStatus.textContent = message;
+    elements.uploadStatus.className = `status-message ${type}`;
 
-    if (type === 'success') {
+    if (type === "success") {
         setTimeout(() => {
-            uploadStatus.style.display = 'none';
+            elements.uploadStatus.style.display = "none";
         }, 5000);
     }
 }
 
-// Clear all documents
 async function clearDocuments() {
-    if (!confirm('Are you sure you want to clear all documents? This cannot be undone.')) {
+    if (!confirm("Are you sure you want to clear all documents? This cannot be undone.")) {
         return;
     }
 
-    clearDocsBtn.disabled = true;
+    elements.clearDocsBtn.disabled = true;
 
     try {
-        const response = await fetch(`${API_BASE}/documents`, {
-            method: 'DELETE'
-        });
-
+        const response = await fetch(`${API_BASE}/documents`, { method: "DELETE" });
         const data = await response.json();
 
         if (response.ok) {
-            showUploadStatus('All documents cleared', 'success');
+            showUploadStatus("All documents cleared", "success");
             updateDocumentCount();
             checkHealth();
         } else {
-            showUploadStatus('Failed to clear documents', 'error');
+            showUploadStatus(data.detail || "Failed to clear documents", "error");
         }
-
     } catch (error) {
-        console.error('Clear error:', error);
-        showUploadStatus('Failed to clear documents', 'error');
+        console.error("Clear error:", error);
+        showUploadStatus("Failed to clear documents", "error");
     } finally {
-        clearDocsBtn.disabled = false;
+        elements.clearDocsBtn.disabled = false;
     }
 }
