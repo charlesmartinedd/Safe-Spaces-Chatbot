@@ -1,0 +1,26 @@
+Sample Document for RAG System
+
+This is a sample document to demonstrate the RAG (Retrieval-Augmented Generation) capabilities of the AI chatbot.
+
+About RAG:
+RAG stands for Retrieval-Augmented Generation. It's a technique that enhances AI responses by first retrieving relevant information from a knowledge base, then using that information to generate more accurate and contextual responses.
+
+How it works:
+1. Documents are uploaded to the system
+2. They are split into chunks and converted to vector embeddings
+3. When a user asks a question, the system searches for relevant chunks
+4. The AI uses these chunks as context to generate a response
+
+Benefits:
+- More accurate responses based on your specific documents
+- Reduces hallucinations by grounding responses in real data
+- Allows the AI to answer questions about your proprietary information
+- Can be updated in real-time by adding or removing documents
+
+Example Questions:
+Try asking:
+- "What is RAG?"
+- "How does the system work?"
+- "What are the benefits of using RAG?"
+
+The chatbot will use this document to provide accurate answers!

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot with RAG</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>AI Chatbot with RAG</h1>
+            <p class="subtitle">Intelligent conversations powered by Retrieval-Augmented Generation</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar for document management -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h2>Knowledge Base</h2>
+                    <div class="document-stats">
+                        <span id="doc-count">0</span> chunks loaded
+                    </div>
+
+                    <div class="upload-section">
+                        <h3>Upload Documents</h3>
+                        <input type="file" id="file-input" accept=".txt,.pdf" />
+                        <button id="upload-btn" class="btn btn-primary">Upload</button>
+                        <div id="upload-status" class="status-message"></div>
+                    </div>
+
+                    <div class="rag-toggle">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="rag-toggle" checked />
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">Use RAG</span>
+                        </label>
+                    </div>
+
+                    <button id="clear-docs-btn" class="btn btn-secondary">Clear All Documents</button>
+                </div>
+            </aside>
+
+            <!-- Chat Area -->
+            <main class="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <strong>AI Assistant:</strong>
+                            <p>Hello! I'm your AI assistant with RAG capabilities. Upload documents to my knowledge base, and I'll use them to provide more accurate and contextual responses. How can I help you today?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <textarea
+                        id="user-input"
+                        class="chat-input"
+                        placeholder="Type your message here..."
+                        rows="3"
+                    ></textarea>
+                    <button id="send-btn" class="btn btn-send">Send</button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by OpenAI and ChromaDB | Status: <span id="status">Checking...</span></p>
+        </footer>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
