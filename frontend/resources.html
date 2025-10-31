@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - RRC Support Coach</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/resources.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header with logo and gradient line -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>Recognize, Respond, Connect: Resources</h1>
+                </div>
+                <div class="header-logo">
+                    <img src="/static/images/logo-rrc.png" alt="CDPH and ACES Aware" class="logo-image">
+                </div>
+            </div>
+            <!-- Gradient line (recreated from Line.png) -->
+            <div class="gradient-line"></div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-bar">
+            <a href="/" class="nav-link">💬 Chat with Coach</a>
+            <a href="/resources.html" class="nav-link active">📚 Resources</a>
+        </nav>
+
+        <!-- Resources Page Content -->
+        <main class="resources-page">
+            <!-- Search and Filters -->
+            <div class="search-section">
+                <div class="search-box-container">
+                    <input
+                        type="text"
+                        id="search-input"
+                        class="search-input-large"
+                        placeholder="🔍 Search resources by keyword or topic..."
+                    >
+                </div>
+
+                <div class="filters-row">
+                    <select id="category-filter" class="filter-select-large">
+                        <option value="all">All Categories</option>
+                        <option value="Official Resources">🏛️ Official Resources</option>
+                        <option value="Trauma-Informed Education">📚 Trauma-Informed Education</option>
+                        <option value="Research & Evidence">🔬 Research & Evidence</option>
+                        <option value="Practical Tools">🛠️ Practical Tools</option>
+                        <option value="Community Resources">🤝 Community Resources</option>
+                    </select>
+
+                    <button id="clear-filters" class="clear-btn">Clear Filters</button>
+                </div>
+
+                <div class="results-count">
+                    <span id="results-text">Loading resources...</span>
+                </div>
+            </div>
+
+            <!-- Resources Grid -->
+            <div id="resources-grid" class="resources-grid">
+                <!-- Resources will be loaded here by JavaScript -->
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading resources...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-section" id="pagination" style="display: none;">
+                <div class="pagination-info">
+                    <span id="page-info">Showing 1-10 of 32</span>
+                </div>
+                <div class="pagination-buttons">
+                    <button id="prev-btn" class="pagination-btn" disabled>← Previous</button>
+                    <span id="page-numbers" class="page-numbers"></span>
+                    <button id="next-btn" class="pagination-btn">Next →</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/resources.js"></script>
+</body>
+</html>

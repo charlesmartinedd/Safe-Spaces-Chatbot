@@ -43,6 +43,12 @@ async def read_root():
     return FileResponse("frontend/index.html")
 
 
+@app.get("/resources.html")
+async def read_resources():
+    """Serve the resources page"""
+    return FileResponse("frontend/resources.html")
+
+
 if __name__ == "__main__":
     import uvicorn
 

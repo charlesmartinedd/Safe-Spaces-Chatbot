@@ -118,19 +118,36 @@ function addMessage(sender, content, sources = null) {
     contentDiv.appendChild(headerDiv);
     contentDiv.appendChild(textDiv);
 
-    // Add sources if available
+    // Add sources if available (beautiful styling)
     if (sources && sources.length > 0) {
         const sourcesDiv = document.createElement("div");
         sourcesDiv.className = "sources-cited";
 
-        const sourcesTitle = document.createElement("p");
-        sourcesTitle.innerHTML = "<strong>Sources:</strong>";
-        sourcesDiv.appendChild(sourcesTitle);
+        // Header with icon
+        const sourcesHeader = document.createElement("div");
+        sourcesHeader.className = "sources-header";
+        sourcesHeader.innerHTML = `
+            <span>📚</span>
+            <span>Sources Referenced</span>
+        `;
+        sourcesDiv.appendChild(sourcesHeader);
 
-        sources.slice(0, 2).forEach(source => {
-            const sourceP = document.createElement("p");
-            sourceP.textContent = `• ${source.source || "Document"}`;
-            sourcesDiv.appendChild(sourceP);
+        // Display up to 2 sources with beautiful formatting
+        sources.slice(0, 2).forEach((source, index) => {
+            const sourceItem = document.createElement("div");
+            sourceItem.className = "source-item";
+
+            const bullet = document.createElement("span");
+            bullet.className = "source-bullet";
+            bullet.textContent = "→";
+
+            const sourceText = document.createElement("span");
+            const sourceName = source.source || `Document ${index + 1}`;
+            sourceText.textContent = sourceName;
+
+            sourceItem.appendChild(bullet);
+            sourceItem.appendChild(sourceText);
+            sourcesDiv.appendChild(sourceItem);
         });
 
         contentDiv.appendChild(sourcesDiv);
