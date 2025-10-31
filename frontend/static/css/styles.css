@@ -33,8 +33,8 @@ body {
     background: var(--white);
     color: var(--text-primary);
     line-height: 1.6;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-y: auto;
 }
 
 /* ========================
@@ -77,6 +77,27 @@ body {
 }
 
 /* Logo positioning at top right */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.resources-link {
+    color: var(--navy);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.resources-link:hover {
+    background: var(--off-white);
+    color: var(--teal);
+}
+
 .header-logo {
     display: flex;
     align-items: center;
@@ -141,10 +162,9 @@ body {
 .app-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    max-height: 100vh;
+    min-height: 100vh;
     background: var(--white);
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 .chat-container {
@@ -204,6 +224,23 @@ body {
     background: #F0FFFE;
     border: 2px solid var(--teal);
     border-left: 3px solid var(--teal);
+    box-shadow: 0 4px 12px rgba(0, 180, 168, 0.1);
+    position: relative;
+}
+
+/* RRC Coach badge */
+.bot-message .message-content::before {
+    content: '🎓 RRC Coach';
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    background: var(--teal);
+    color: var(--white);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    opacity: 0.8;
 }
 
 .user-message {
@@ -212,9 +249,10 @@ body {
 }
 
 .user-message .message-content {
-    background: var(--white);
+    background: #F0F4F8;
     border: 2px solid var(--navy);
     border-left: 3px solid var(--navy);
+    box-shadow: 0 2px 8px rgba(44, 62, 124, 0.08);
 }
 
 .message-header {
@@ -260,17 +298,37 @@ body {
     margin-bottom: 0;
 }
 
-/* Source citations */
+/* Source citations - Enhanced styling */
 .sources-cited {
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--border-gray);
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid rgba(0, 180, 168, 0.2);
     font-size: 0.875rem;
-    color: var(--text-secondary);
 }
 
-.sources-cited p {
-    margin: 0.35rem 0;
+.sources-cited .sources-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.sources-cited .source-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.sources-cited .source-bullet {
+    color: var(--teal);
+    font-weight: bold;
+    flex-shrink: 0;
 }
 
 /* ========================
@@ -278,11 +336,11 @@ body {
    ======================== */
 
 .input-container {
-    background: var(--white);
+    background: linear-gradient(to bottom, #FFFFFF 0%, #F0F8FF 100%);
     border-radius: 12px;
     padding: 1rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    border: 1px solid var(--border-gray);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+    border: 2px solid var(--border-gray);
     display: flex;
     gap: 1rem;
     align-items: flex-end;
@@ -292,7 +350,7 @@ body {
 
 .input-container:focus-within {
     border-color: var(--teal);
-    box-shadow: 0 4px 16px rgba(0,180,168,0.15);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08), 0 0 0 3px rgba(0,180,168,0.1);
 }
 
 .message-input {
@@ -302,10 +360,17 @@ body {
     font-family: inherit;
     font-size: 1rem;
     resize: none;
-    background: transparent;
+    background: rgba(255, 255, 255, 0.8);
     color: var(--text-primary);
     min-height: 60px;
     line-height: 1.5;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.message-input:focus {
+    background: rgba(255, 255, 255, 1);
 }
 
 .message-input::placeholder {
@@ -462,4 +527,40 @@ body {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* ========================
+   Language Toggle
+   ======================== */
+
+.language-toggle {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--off-white);
+    padding: 0.3rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-gray);
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.lang-btn:hover {
+    background: rgba(0, 180, 168, 0.1);
+    color: var(--teal);
+}
+
+.lang-btn.active {
+    background: var(--teal);
+    color: var(--white);
+    box-shadow: 0 2px 4px rgba(0, 180, 168, 0.2);
 }

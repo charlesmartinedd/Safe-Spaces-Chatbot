@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Spaces RRC Assistant</title>
+    <link rel="stylesheet" href="/static/css/minimal-design.css">
+</head>
+<body class="dark-theme">
+    <!-- Welcome Modal (shown on first visit) -->
+    <div id="welcome-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Welcome to Safe Spaces RRC Assistant</h2>
+                <p class="subtitle">Let's personalize your experience</p>
+            </div>
+
+            <form id="profile-form">
+                <div class="form-group">
+                    <label for="grade-levels">What grade level(s) do you work with?</label>
+                    <select id="grade-levels" required>
+                        <option value="">Select grade level(s)...</option>
+                        <option value="K-2">K-2 (Primary)</option>
+                        <option value="3-5">3-5 (Elementary)</option>
+                        <option value="6-8">6-8 (Middle School)</option>
+                        <option value="9-12">9-12 (High School)</option>
+                        <option value="K-12">K-12 (All Levels)</option>
+                        <option value="adult">Adult Education</option>
+                        <option value="preschool">Preschool/Pre-K</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="scenario">What scenario or context can I help with today?</label>
+                    <textarea
+                        id="scenario"
+                        rows="4"
+                        placeholder="E.g., Supporting a student experiencing trauma, implementing PBIS, crisis response planning, building classroom relationships..."
+                        required
+                    ></textarea>
+                    <span class="helper-text">This helps me provide more relevant, specific guidance</span>
+                </div>
+
+                <button type="submit" class="btn-primary">Start Conversation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div id="chat-app" class="hidden">
+        <!-- Minimal Header -->
+        <header class="minimal-header">
+            <div class="header-content">
+                <h1>Safe Spaces RRC Assistant</h1>
+                <button id="reset-context" class="btn-icon" title="Change context" aria-label="Reset context">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.5 4.5L17 8M17 8L13.5 11.5M17 8H7C4.79086 8 3 9.79086 3 12C3 14.2091 4.79086 16 7 16H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Chat Container (centered, max-width) -->
+        <main class="chat-main">
+            <div class="chat-container">
+                <div id="chat-messages" class="messages-area">
+                    <!-- Messages appear here dynamically -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Fixed Input at Bottom -->
+        <footer class="chat-footer">
+            <div class="input-container">
+                <textarea
+                    id="user-input"
+                    class="chat-input"
+                    placeholder="Ask me anything about Safe Spaces, trauma-informed practices, or school climate..."
+                    rows="1"
+                    aria-label="Chat message input"
+                ></textarea>
+                <button id="send-btn" class="btn-send" aria-label="Send message">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/static/js/minimal-app.js"></script>
+</body>
+</html>

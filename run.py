@@ -18,12 +18,12 @@ if not os.getenv("OPENAI_API_KEY"):
     print("3. Run this script again")
     sys.exit(1)
 
-print("Starting AI Chatbot with RAG...")
+print("Starting AI Chatbot with RAG (BILINGUAL VERSION - EN/ES)...")
 print("="*50)
 print(f"Host: {os.getenv('HOST', '0.0.0.0')}")
-print(f"Port: {os.getenv('PORT', '8000')}")
+print(f"Port: 9111")
 print("="*50)
-print("\nServer will be available at: http://localhost:8000")
+print("\nServer will be available at: http://localhost:9111")
 print("Press CTRL+C to stop the server\n")
 
 # Import and run
@@ -32,6 +32,6 @@ from backend.main import app
 
 if __name__ == "__main__":
     host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", 8000))
+    port = 9111  # Fixed port for bilingual version
 
     uvicorn.run(app, host=host, port=port)

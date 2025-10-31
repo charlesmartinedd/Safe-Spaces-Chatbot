@@ -16,6 +16,7 @@ class ChatMessage(BaseModel):
     use_rag: bool = True
     provider: Optional[str] = None
     session_id: Optional[str] = None
+    language: Optional[str] = "en"  # Language preference: 'en' or 'es'
 
 
 class ChatResponse(BaseModel):

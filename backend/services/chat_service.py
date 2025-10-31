@@ -48,13 +48,18 @@ class ChatService:
         """Return a sorted list of configured providers."""
         return sorted(self.providers.keys())
 
-    def _build_system_message(self, context: Optional[List[Dict]], user_profile: Optional[Dict] = None) -> str:
+    def _build_system_message(self, context: Optional[List[Dict]], user_profile: Optional[Dict] = None, language: str = "en") -> str:
         grade_context = ""
         role_context = ""
 
         if user_profile:
             grade_context = f"Grade Level: {user_profile.get('grade_levels', 'K-12')}"
             role_context = f"Professional Role: {user_profile.get('role', 'Education professional')}"
+
+        # Language instruction
+        language_instruction = ""
+        if language == "es":
+            language_instruction = "\n\nIMPORTANT: Respond entirely in Spanish. Translate all content, strategies, and advice into Spanish."
 
         base_message = f"""You are an RRC (Recognize, Respond, Connect) Support Coach - an expert in the RRC course content specializing in:
 - Supporting California K-12 educational professionals with trauma-informed practices
@@ -92,7 +97,7 @@ HTML FORMATTING EXAMPLE:
 <ul>
 <li>Strategy 1: Create a predictable classroom routine...</li>
 <li>Strategy 2: Use trauma-sensitive language...</li>
-</ul>"""
+</ul>{language_instruction}"""
 
         if context:
             context_text = "\n\n".join(
@@ -108,6 +113,7 @@ HTML FORMATTING EXAMPLE:
         context: Optional[List[Dict]] = None,
         provider: Optional[str] = None,
         user_profile: Optional[Dict] = None,
+        language: str = "en",
     ) -> Tuple[str, str]:
         """Generate a chat response and return the provider used."""
 
@@ -126,7 +132,7 @@ HTML FORMATTING EXAMPLE:
             )
 
         config = self.providers[provider_name]
-        system_message = self._build_system_message(context, user_profile)
+        system_message = self._build_system_message(context, user_profile, language)
 
         try:
             response = config["client"].chat.completions.create(

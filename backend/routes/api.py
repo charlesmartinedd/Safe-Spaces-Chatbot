@@ -52,12 +52,17 @@ async def chat(message: ChatMessage):
         # Get user profile from session
         user_profile = user_sessions.get(message.session_id, {})
 
+        # Get language preference (default to English)
+        language = message.language or 'en'
+        logger.info("Language preference: %s", language)
+
         # Generate response (always using xai/Grok-4)
         response_text, provider_used = chat_service.generate_response(
             user_message=message.message,
             context=sources,
             provider="xai",  # Force Grok-4
             user_profile=user_profile,
+            language=language,  # Pass language to chat service
         )
 
         return ChatResponse(

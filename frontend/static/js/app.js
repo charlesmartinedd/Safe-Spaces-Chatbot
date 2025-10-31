@@ -1,4 +1,4 @@
-// RRC Chat Scenarios - Simplified Pure Chat
+// RRC Chat Scenarios - Bilingual Version
 const API_BASE = "/api";
 
 // DOM Elements
@@ -11,6 +11,14 @@ const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 
 
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
+    // Initialize language
+    initializeLanguage();
+
+    // Language toggle buttons
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchLanguage(btn.dataset.lang));
+    });
+
     // Send message on button click
     sendBtn.addEventListener("click", sendMessage);
 
@@ -28,6 +36,72 @@ document.addEventListener("DOMContentLoaded", () => {
         userInput.style.height = userInput.scrollHeight + "px";
     });
 });
+
+// Initialize language on page load
+function initializeLanguage() {
+    const currentLang = langManager.getLanguage();
+    updateUI(currentLang);
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
+}
+
+// Switch language
+function switchLanguage(lang) {
+    // Save language preference and refresh page to clear chat history
+    langManager.setLanguage(lang);
+    location.reload();
+}
+
+// Update UI with translations
+function updateUI(lang) {
+    // Update title
+    document.querySelector('h1').textContent = langManager.t('appTitle');
+
+    // Update links
+    const resourcesLink = document.querySelector('.resources-link');
+    if (resourcesLink) {
+        resourcesLink.textContent = '📚 ' + langManager.t('resourcesLink');
+    }
+
+    // Update input placeholder
+    if (userInput) {
+        userInput.placeholder = langManager.t('inputPlaceholder');
+    }
+
+    // Update send button
+    if (sendBtn) {
+        sendBtn.textContent = langManager.t('sendButton');
+    }
+
+    // Update welcome message if it exists
+    const welcomeMessage = chatMessages.querySelector('.bot-message');
+    if (welcomeMessage && chatMessages.children.length === 1) {
+        updateWelcomeMessage(welcomeMessage);
+    }
+}
+
+// Update welcome message with current language
+function updateWelcomeMessage(messageEl) {
+    const headerEl = messageEl.querySelector('.message-header strong');
+    const textEl = messageEl.querySelector('.message-text');
+
+    if (headerEl) {
+        headerEl.textContent = langManager.t('welcomeTitle');
+    }
+
+    if (textEl) {
+        textEl.innerHTML = `
+            <p><strong>${langManager.t('welcomeStrong')}</strong> ${langManager.t('welcomeIntro')}</p>
+            <p>${langManager.t('welcomePrompt')}</p>
+            <ul>
+                <li>${langManager.t('welcomeQuestion1')}</li>
+                <li>${langManager.t('welcomeQuestion2')}</li>
+            </ul>
+            <p>${langManager.t('welcomeClosing')}</p>
+        `;
+    }
+}
 
 // Send message to RRC Coach
 async function sendMessage() {
@@ -49,7 +123,7 @@ async function sendMessage() {
     const typingId = addTypingIndicator();
 
     try {
-        // Send to API
+        // Send to API with language parameter
         const response = await fetch(`${API_BASE}/chat`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -57,7 +131,8 @@ async function sendMessage() {
                 message: message,
                 session_id: sessionId,
                 use_rag: true,
-                provider: "xai"
+                provider: "xai",
+                language: langManager.getLanguage()  // Pass current language
             })
         });
 
