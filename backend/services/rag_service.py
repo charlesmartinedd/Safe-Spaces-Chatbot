@@ -3,7 +3,11 @@ from pathlib import Path
 from typing import Dict, List
 
 import chromadb
-from chromadb.errors import InvalidCollectionException
+try:
+    from chromadb.errors import InvalidCollectionException
+except ImportError:
+    # Newer versions of ChromaDB don't have InvalidCollectionException
+    InvalidCollectionException = ValueError
 from sentence_transformers import SentenceTransformer
 import logging
 
@@ -33,7 +37,8 @@ class RAGService:
         try:
             self.collection = self.client.get_collection(name=self.collection_name)
             logger.info("Loaded existing collection: %s", self.collection_name)
-        except (InvalidCollectionException, ValueError):
+        except Exception:
+            # Collection doesn't exist, create it
             self.collection = self.client.create_collection(name=self.collection_name)
             logger.info("Created new collection: %s", self.collection_name)
 
@@ -109,7 +114,7 @@ class RAGService:
         """Clear all documents from the collection"""
         try:
             self.client.delete_collection(name=self.collection_name)
-        except (InvalidCollectionException, ValueError):
+        except Exception:
             logger.info("Collection %s not found; creating a new one.", self.collection_name)
         self.collection = self.client.create_collection(name=self.collection_name)
         logger.info("Cleared collection: %s", self.collection_name)
