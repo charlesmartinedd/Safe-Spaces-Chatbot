@@ -1,7 +1,9 @@
 import os
+from pathlib import Path
+from typing import Dict, List
+
 import chromadb
-from chromadb.config import Settings
-from typing import List, Dict
+from chromadb.errors import InvalidCollectionException
 from sentence_transformers import SentenceTransformer
 import logging
 
@@ -17,24 +19,23 @@ class RAGService:
         self.embedding_model_name = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
         self.chunk_size = int(os.getenv("CHUNK_SIZE", "1000"))
         self.chunk_overlap = int(os.getenv("CHUNK_OVERLAP", "200"))
+        self.persist_directory = Path(os.getenv("CHROMA_DIR", "./chroma_db")).resolve()
+        self.persist_directory.mkdir(parents=True, exist_ok=True)
 
-        # Initialize ChromaDB
-        self.client = chromadb.Client(Settings(
-            chroma_db_impl="duckdb+parquet",
-            persist_directory="./chroma_db"
-        ))
+        # Initialize ChromaDB persistent client
+        self.client = chromadb.PersistentClient(path=str(self.persist_directory))
 
         # Initialize embedding model
-        logger.info(f"Loading embedding model: {self.embedding_model_name}")
+        logger.info("Loading embedding model: %s", self.embedding_model_name)
         self.embedding_model = SentenceTransformer(self.embedding_model_name)
 
         # Get or create collection
         try:
             self.collection = self.client.get_collection(name=self.collection_name)
-            logger.info(f"Loaded existing collection: {self.collection_name}")
-        except:
+            logger.info("Loaded existing collection: %s", self.collection_name)
+        except (InvalidCollectionException, ValueError):
             self.collection = self.client.create_collection(name=self.collection_name)
-            logger.info(f"Created new collection: {self.collection_name}")
+            logger.info("Created new collection: %s", self.collection_name)
 
     def chunk_text(self, text: str) -> List[str]:
         """Split text into chunks with overlap"""
@@ -54,45 +55,49 @@ class RAGService:
         """Add a document to the RAG system"""
         chunks = self.chunk_text(text)
 
-        # Create embeddings
+        if not chunks:
+            logger.warning("No chunks created for %s", filename)
+            return 0
+
         embeddings = self.embedding_model.encode(chunks).tolist()
 
-        # Generate unique IDs
         doc_count = self.collection.count()
         ids = [f"{filename}_{doc_count}_{i}" for i in range(len(chunks))]
 
-        # Add to collection
         self.collection.add(
             embeddings=embeddings,
             documents=chunks,
             metadatas=[{"source": filename, "chunk": i} for i in range(len(chunks))],
-            ids=ids
+            ids=ids,
         )
 
-        logger.info(f"Added {len(chunks)} chunks from {filename}")
+        logger.info("Added %d chunks from %s", len(chunks), filename)
         return len(chunks)
 
     def query(self, query_text: str, n_results: int = 3) -> List[Dict]:
         """Query the RAG system for relevant documents"""
-        # Create query embedding
         query_embedding = self.embedding_model.encode([query_text]).tolist()
 
-        # Query the collection
         results = self.collection.query(
             query_embeddings=query_embedding,
-            n_results=n_results
+            n_results=n_results,
         )
 
-        # Format results
         sources = []
-        if results['documents'] and len(results['documents']) > 0:
-            for i, doc in enumerate(results['documents'][0]):
-                sources.append({
-                    "text": doc,
-                    "source": results['metadatas'][0][i].get('source', 'unknown'),
-                    "chunk": results['metadatas'][0][i].get('chunk', 0),
-                    "distance": results['distances'][0][i] if 'distances' in results else None
-                })
+        if results.get("documents") and len(results["documents"]) > 0:
+            docs = results["documents"][0]
+            metas = results.get("metadatas", [[]])[0]
+            distances = results.get("distances", [[]])[0]
+            for i, doc in enumerate(docs):
+                meta = metas[i] if i < len(metas) else {}
+                sources.append(
+                    {
+                        "text": doc,
+                        "source": meta.get("source", "unknown"),
+                        "chunk": meta.get("chunk", 0),
+                        "distance": distances[i] if i < len(distances) else None,
+                    }
+                )
 
         return sources
 
@@ -102,6 +107,13 @@ class RAGService:
 
     def clear_collection(self):
         """Clear all documents from the collection"""
-        self.client.delete_collection(name=self.collection_name)
+        try:
+            self.client.delete_collection(name=self.collection_name)
+        except (InvalidCollectionException, ValueError):
+            logger.info("Collection %s not found; creating a new one.", self.collection_name)
         self.collection = self.client.create_collection(name=self.collection_name)
-        logger.info(f"Cleared collection: {self.collection_name}")
+        logger.info("Cleared collection: %s", self.collection_name)
+
+
+
+

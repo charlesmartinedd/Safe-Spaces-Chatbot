@@ -1,0 +1,152 @@
+[
+  {
+    "title": "Safe Schools & Violence Prevention",
+    "url": "https://www.cde.ca.gov/ls/ss/se/",
+    "output": "safe_schools_violence_prevention"
+  },
+  {
+    "title": "Safe and Supportive Schools Program",
+    "url": "https://www.cde.ca.gov/ls/ss/se/safesupportive.asp",
+    "output": "safe_supportive_schools_program"
+  },
+  {
+    "title": "School Climate, Health, and Safety",
+    "url": "https://www.cde.ca.gov/ls/ss/",
+    "output": "school_climate_health_safety"
+  },
+  {
+    "title": "California MTSS",
+    "url": "https://www.cde.ca.gov/ci/cr/mt/",
+    "output": "california_mtss"
+  },
+  {
+    "title": "Social and Emotional Learning in California",
+    "url": "https://www.cde.ca.gov/ci/se/",
+    "output": "california_sel"
+  },
+  {
+    "title": "Restorative Practices Resources",
+    "url": "https://www.cde.ca.gov/ls/ss/se/restorativepractices.asp",
+    "output": "restorative_practices"
+  },
+  {
+    "title": "Trauma-Informed Schools",
+    "url": "https://www.cde.ca.gov/ls/ss/se/traumainformed.asp",
+    "output": "trauma_informed_schools"
+  },
+  {
+    "title": "Bullying & Cyberbullying Prevention",
+    "url": "https://www.cde.ca.gov/ls/ss/se/bullyres.asp",
+    "output": "bullying_cyberbullying_prevention"
+  },
+  {
+    "title": "Comprehensive School Safety Plans",
+    "url": "https://www.cde.ca.gov/ls/ss/vp/",
+    "output": "comprehensive_school_safety_plans"
+  },
+  {
+    "title": "Suicide Prevention Resources",
+    "url": "https://www.cde.ca.gov/ls/cg/mh/suicideprevres.asp",
+    "output": "suicide_prevention_resources"
+  },
+  {
+    "title": "School Mental Health",
+    "url": "https://www.cde.ca.gov/ls/cg/mh/",
+    "output": "school_mental_health"
+  },
+  {
+    "title": "Human Trafficking Prevention Education",
+    "url": "https://www.cde.ca.gov/ls/cg/mg/hteducators.asp",
+    "output": "human_trafficking_prevention_education"
+  },
+  {
+    "title": "Child Abuse Prevention & Training",
+    "url": "https://www.cde.ca.gov/ls/ss/ap/",
+    "output": "child_abuse_prevention_training"
+  },
+  {
+    "title": "Safe Havens for Immigrant Students",
+    "url": "https://www.cde.ca.gov/re/di/isd/",
+    "output": "safe_havens_immigrant_students"
+  },
+  {
+    "title": "Foster Youth Services Coordinating Program",
+    "url": "https://www.cde.ca.gov/ls/pf/fy/fyscp.asp",
+    "output": "foster_youth_services"
+  },
+  {
+    "title": "Homeless Education (McKinney-Vento)",
+    "url": "https://www.cde.ca.gov/sp/hs/",
+    "output": "homeless_education"
+  },
+  {
+    "title": "Special Education Family & Community Resources",
+    "url": "https://www.cde.ca.gov/sp/se/",
+    "output": "special_education_family_resources"
+  },
+  {
+    "title": "School Nutrition Programs",
+    "url": "https://www.cde.ca.gov/ls/nu/",
+    "output": "school_nutrition_programs"
+  },
+  {
+    "title": "School Attendance Review Boards",
+    "url": "https://www.cde.ca.gov/ls/ai/sb/",
+    "output": "school_attendance_review_boards"
+  },
+  {
+    "title": "Emergency Response & Crisis Management",
+    "url": "https://www.cde.ca.gov/ls/ss/vp/emresponse.asp",
+    "output": "emergency_response_crisis_management"
+  },
+  {
+    "title": "LGBTQ+ Resources",
+    "url": "https://www.cde.ca.gov/ls/ss/se/lgbtqresources.asp",
+    "output": "lgbtq_resources"
+  },
+  {
+    "title": "Academic, Social, and Emotional Learning",
+    "url": "https://www.cde.ca.gov/ci/se/academicsocialemotionallearning.asp",
+    "output": "academic_social_emotional_learning"
+  },
+  {
+    "title": "California Resilience Project",
+    "url": "https://www.cde.ca.gov/ls/ss/se/resilienceproject.asp",
+    "output": "california_resilience_project"
+  },
+  {
+    "title": "Positive Behavioral Interventions & Supports",
+    "url": "https://www.cde.ca.gov/ls/ss/se/pbis.asp",
+    "output": "positive_behavior_interventions_supports"
+  },
+  {
+    "title": "Safe Schools for All Hub",
+    "url": "https://schools.covid19.ca.gov/",
+    "output": "safe_schools_for_all"
+  },
+  {
+    "title": "School Health (CDPH)",
+    "url": "https://www.cdph.ca.gov/Programs/CCDPHP/schoolhealth/Pages/default.aspx",
+    "output": "cdph_school_health"
+  },
+  {
+    "title": "School-Based Health Centers",
+    "url": "https://www.cdph.ca.gov/Programs/CCDPHP/DCDIC/SACB/Pages/School-Based-Health-Centers.aspx",
+    "output": "school_based_health_centers"
+  },
+  {
+    "title": "California School Safety Resource Guide",
+    "url": "https://library.ca.gov/Content/Uploads/files/pdf/safety/school-safety-resource-guide.pdf",
+    "output": "california_school_safety_resource_guide"
+  },
+  {
+    "title": "California S3 School Climate Brief",
+    "url": "https://ca.safesupportivelearning.ed.gov/sites/default/files/2021-10/CA_S3_School_Climate_Brief.pdf",
+    "output": "california_s3_school_climate_brief"
+  },
+  {
+    "title": "California Collaborative for Educational Excellence - School Climate",
+    "url": "https://www.ccee-ca.org/resources/ccee-resource-archive/school-climate/",
+    "output": "ccee_school_climate_archive"
+  }
+]
