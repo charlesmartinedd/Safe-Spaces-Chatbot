@@ -20,7 +20,9 @@ async def health_check():
     return HealthResponse(
         status="healthy",
         rag_enabled=True,
-        documents_count=rag_service.get_document_count()
+        documents_count=rag_service.get_document_count(),
+        default_provider=chat_service.default_provider,
+        providers=chat_service.available_providers(),
     )
 
 
@@ -33,22 +35,24 @@ async def chat(message: ChatMessage):
         # If RAG is enabled, retrieve relevant context
         if message.use_rag:
             sources = rag_service.query(message.message, n_results=3)
-            logger.info(f"Retrieved {len(sources)} sources for query")
+            logger.info("Retrieved %d sources for query", len(sources))
 
         # Generate response
-        response_text = chat_service.generate_response(
+        response_text, provider_used = chat_service.generate_response(
             user_message=message.message,
-            context=sources
+            context=sources,
+            provider=message.provider,
         )
 
         return ChatResponse(
             response=response_text,
+            provider=provider_used,
             sources=sources if message.use_rag else None
         )
 
-    except Exception as e:
-        logger.error(f"Error in chat endpoint: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:  # noqa: BLE001
+        logger.error("Error in chat endpoint: %s", e)
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/upload", response_model=DocumentUpload)
@@ -62,14 +66,13 @@ async def upload_document(file: UploadFile = File(...)):
         if file.filename.endswith('.txt'):
             text = content.decode('utf-8')
         elif file.filename.endswith('.pdf'):
-            # For PDF files, we'll need pypdf
-            from pypdf import PdfReader
+            from pypdf import PdfReader  # lazy import for PDFs
             from io import BytesIO
             pdf_file = BytesIO(content)
             reader = PdfReader(pdf_file)
             text = ""
             for page in reader.pages:
-                text += page.extract_text() + "\n"
+                text += (page.extract_text() or "") + "\n"
         else:
             raise HTTPException(status_code=400, detail="Unsupported file type. Please upload .txt or .pdf files.")
 
@@ -82,9 +85,9 @@ async def upload_document(file: UploadFile = File(...)):
             status="success"
         )
 
-    except Exception as e:
-        logger.error(f"Error uploading document: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:  # noqa: BLE001
+        logger.error("Error uploading document: %s", e)
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.delete("/documents")
@@ -93,9 +96,9 @@ async def clear_documents():
     try:
         rag_service.clear_collection()
         return {"status": "success", "message": "All documents cleared"}
-    except Exception as e:
-        logger.error(f"Error clearing documents: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:  # noqa: BLE001
+        logger.error("Error clearing documents: %s", e)
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/documents/count")
